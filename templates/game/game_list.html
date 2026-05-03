@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Ігри - LogosGame{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Кнопка для фільтрів на мобільних -->
+    <div class="col-12 d-md-none mb-3">
+        <button class="btn btn-primary w-100 py-2 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar">
+            <i class="bi bi-filter"></i> Налаштувати пошук
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="collapse col-md-3 d-md-block" id="filterSidebar">
+        <div class="card border-0 mb-4 shadow-sm sticky-top" style="top: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05) !important; border-radius: 20px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0 text-white fw-bold">Фільтри</h5>
+                    <a href="{% url 'game:game_list' %}" class="text-primary text-decoration-none small fw-bold">Скинути</a>
+                </div>
+                
+                <form method="get" id="filterForm">
+                    {% for field_name, label, options, current_val in filter_data %}
+                    <div class="mb-4">
+                        <label class="form-label small text-muted text-uppercase fw-bold ls-1 mb-2 d-block">{{ label }}</label>
+                        
+                        <!-- Custom Select Implementation -->
+                        <div class="custom-dropdown" id="dropdown-{{ field_name }}">
+                            <input type="hidden" name="{{ field_name }}" value="{{ current_val|default:'' }}">
+                            <div class="dropdown-trigger" onclick="toggleDropdown('{{ field_name }}')">
+                                <span class="selected-text">
+                                    {% if current_val %}
+                                        {% for item in options %}
+                                            {% if current_val == item.id|stringformat:"i" %}{{ item.name }}{% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        Всі
+                                    {% endif %}
+                                </span>
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                            <div class="dropdown-menu-custom">
+                                <div class="dropdown-option {% if not current_val %}active{% endif %}" onclick="selectOption('{{ field_name }}', '', 'Всі')">
+                                    Всі
+                                </div>
+                                {% for item in options %}
+                                <div class="dropdown-option {% if current_val == item.id|stringformat:"i" %}active{% endif %}" onclick="selectOption('{{ field_name }}', '{{ item.id }}', '{{ item.name }}')">
+                                    {{ item.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="pt-2">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">
+                            <i class="bi bi-eye me-2"></i> Показати
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game List -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h3 text-white fw-bold mb-0">
+                {% if category_label %}{{ category_label }}{% else %}Всі ігри{% endif %}
+                <span class="badge bg-primary bg-opacity-25 text-primary ms-2 fs-6 fw-normal px-3">{{ games.count }}</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            {% for game in games %}
+            <div class="col-lg-4 col-md-6">
+                <a href="{% url 'game:game_detail' game.pk %}" class="card h-100 text-decoration-none game-card">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="mb-2 d-flex flex-wrap gap-2">
+                             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3" style="font-size: 0.75rem;">{{ game.goal.name|default:"Гра" }}</span>
+                             {% if game.thematic %}
+                             <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3" style="font-size: 0.75rem;">{{ game.thematic.name }}</span>
+                             {% endif %}
+                        </div>
+                        <h5 class="card-title text-white fw-bold mb-3" style="font-size: 1.1rem;">{{ game.title }}</h5>
+                        <p class="card-text text-white-50 small flex-grow-1 mb-4" style="line-height: 1.6;">
+                            {{ game.description|truncatechars:80 }}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-10">
+                            <span class="text-muted small d-flex align-items-center gap-1"><i class="bi bi-clock text-primary"></i> {{ game.duration.name|default:"-" }}</span>
+                            <span class="text-muted small d-flex align-items-center gap-1"><i class="bi bi-people text-primary"></i> {{ game.players_range.name|default:"-" }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 py-5 text-center">
+                <div class="p-5 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+                    <i class="bi bi-search mb-3 d-block text-muted" style="font-size: 3rem;"></i>
+                    <h3 class="text-white">Ігор не знайдено</h3>
+                    <p class="text-muted">За вказаними фільтрами поки немає результатів.</p>
+                    <a href="{% url 'game:game_list' %}" class="btn btn-primary rounded-pill px-4">Скинути фільтри</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 0.8px; }
+    
+    /* CUSTOM DROPDOWN SYSTEM */
+    .custom-dropdown {
+        position: relative;
+        width: 100%;
+        user-select: none;
+    }
+    
+    .dropdown-trigger {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9rem;
+    }
+    
+    .dropdown-trigger:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(13, 110, 253, 0.5);
+    }
+    
+    .custom-dropdown.open .dropdown-trigger {
+        border-color: var(--bs-primary);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    }
+
+    .dropdown-trigger i {
+        font-size: 0.75rem;
+        transition: transform 0.3s ease;
+        opacity: 0.5;
+    }
+    
+    .custom-dropdown.open .dropdown-trigger i {
+        transform: rotate(180deg);
+        opacity: 1;
+        color: var(--bs-primary);
+    }
+    
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: #212529;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        overflow: hidden;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        max-height: 250px;
+        overflow-y: auto;
+    }
+    
+    .custom-dropdown.open .dropdown-menu-custom {
+        display: block;
+        animation: slideDown 0.2s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .dropdown-option {
+        padding: 10px 16px;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .dropdown-option:hover {
+        background: rgba(13, 110, 253, 0.15);
+        color: #fff;
+        padding-left: 20px;
+    }
+    
+    .dropdown-option.active {
+        background: var(--bs-primary);
+        color: #fff;
+        font-weight: 600;
+    }
+
+    /* Scrollbar for the menu */
+    .dropdown-menu-custom::-webkit-scrollbar { width: 5px; }
+    .dropdown-menu-custom::-webkit-scrollbar-track { background: transparent; }
+    .dropdown-menu-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
+
+    /* Game Card Styling */
+    .game-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 18px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .game-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.07) !important;
+        border-color: rgba(13, 110, 253, 0.4) !important;
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+    }
+</style>
+
+<script>
+    function toggleDropdown(fieldName) {
+        const dropdown = document.getElementById('dropdown-' + fieldName);
+        const isOpen = dropdown.classList.contains('open');
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+            if (d.id !== 'dropdown-' + fieldName) {
+                d.classList.remove('open');
+            }
+        });
+        
+        if (!isOpen) {
+            dropdown.classList.add('open');
+        } else {
+            dropdown.classList.remove('open');
+        }
+    }
+
+    function selectOption(fieldName, val, text) {
+        const dropdown = document.getElementById('dropdown-' + fieldName);
+        dropdown.querySelector('input').value = val;
+        dropdown.querySelector('.selected-text').innerText = text;
+        dropdown.classList.remove('open');
+        
+        // DO NOT submit automatically anymore
+        // document.getElementById('filterForm').submit();
+    }
+
+    // Close dropdowns when clicking outside
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-dropdown')) {
+            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+        }
+    });
+</script>
+{% endblock %}

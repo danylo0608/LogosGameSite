@@ -1,0 +1,33 @@
+# Структура бази даних LogosGame
+
+## 1. Основна таблиця: Game (Ігри)
+| Поле | Тип | Опис |
+| :--- | :--- | :--- |
+| title | CharField | Назва гри |
+| category | ForeignKey | Зв'язок з категорією |
+| description | TextField | Опис ("Про гру") |
+| rules | TextField | Правила та хід гри |
+| telegram_link | URLField | Посилання на Telegram |
+| skill_developed | CharField | Навичка, що розвивається |
+| players_range | ForeignKey | Кількість гравців |
+| age_group | ForeignKey | Вік |
+| duration | ForeignKey | Тривалість |
+| prep_level | ForeignKey | Рівень підготовки |
+| location | ForeignKey | Місце проведення |
+| activity_level | ForeignKey | Рівень активності |
+| interaction_type | ForeignKey | Тип взаємодії |
+| goal | ForeignKey | Ціль гри |
+| content_type | ForeignKey | Тип контенту |
+
+## 2. Довідкові таблиці (Фільтри)
+Всі таблиці мають поля `id` та `name`:
+- **Category** (додатково має `slug`)
+- **PlayerCountRange**
+- **AgeGroup**
+- **GameDuration**
+- **PrepLevel**
+- **Location**
+- **ActivityLevel**
+- **InteractionType**
+- **GameGoal**
+- **ContentType**

@@ -1,0 +1,156 @@
+<div class="card shadow-sm border-0 mb-4 {% if sticky %}sticky-lg-top sticky-sidebar{% endif %}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1) !important;">
+    <div class="card-body p-4">
+        <h4 class="h5 mb-4 text-white border-bottom border-secondary pb-3">Параметри гри</h4>
+        
+        <div class="d-flex flex-column gap-4">
+            {% if game.players_range %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-people fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Гравці</span>
+                    <span class="fw-bold text-white">{{ game.players_range.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.age_group %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-person-badge fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Вік</span>
+                    <span class="fw-bold text-white">{{ game.age_group.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.duration %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-clock fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Тривалість</span>
+                    <span class="fw-bold text-white">{{ game.duration.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.prep_level %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-tools fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Підготовка</span>
+                    <span class="fw-bold text-white">{{ game.prep_level.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.location %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-geo-alt fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Місце</span>
+                    <span class="fw-bold text-white">{{ game.location.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.activity_level %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-lightning fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Активність</span>
+                    <span class="fw-bold text-white">{{ game.activity_level.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.interaction_type %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-diagram-3 fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Взаємодія</span>
+                    <span class="fw-bold text-white">{{ game.interaction_type.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.content_type %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-box fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Тип контенту</span>
+                    <span class="fw-bold text-white">{{ game.content_type.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.thematic %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-tag fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Тематика</span>
+                    <span class="fw-bold text-white">{{ game.thematic.name }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if game.skill_developed %}
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-star fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block small text-muted">Розвиває</span>
+                    <span class="fw-bold text-white">{{ game.skill_developed }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if game.show_tg and game.tg_link or game.show_external and game.external_link or game.show_insta and game.insta_link or game.show_youtube and game.youtube_link %}
+        <hr class="my-4 border-secondary opacity-25">
+        <div class="d-flex flex-column gap-2">
+            {% if game.show_tg and game.tg_link %}
+            <a href="{{ game.tg_link }}" target="_blank" class="btn btn-primary w-100 py-3 fw-bold">
+                <i class="bi bi-telegram me-2"></i> {{ game.tg_text|default:"Перейти в чат гри" }}
+            </a>
+            {% endif %}
+
+            {% if game.show_external and game.external_link %}
+            <a href="{{ game.external_link }}" target="_blank" class="btn btn-outline-primary w-100 py-3 fw-bold">
+                <i class="bi bi-globe me-2"></i> {{ game.external_text|default:"Грати онлайн" }}
+            </a>
+            {% endif %}
+
+            {% if game.show_insta and game.insta_link %}
+            <a href="{{ game.insta_link }}" target="_blank" class="btn btn-outline-danger w-100 py-3 fw-bold" style="border-color: #E1306C; color: #E1306C;">
+                <i class="bi bi-instagram me-2"></i> {{ game.insta_text|default:"Instagram" }}
+            </a>
+            {% endif %}
+
+            {% if game.show_youtube and game.youtube_link %}
+            <a href="{{ game.youtube_link }}" target="_blank" class="btn btn-outline-danger w-100 py-3 fw-bold">
+                <i class="bi bi-youtube me-2"></i> {{ game.youtube_text|default:"YouTube" }}
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
