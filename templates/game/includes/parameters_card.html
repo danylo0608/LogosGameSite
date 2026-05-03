@@ -140,7 +140,7 @@
             {% endif %}
 
             {% if game.show_insta and game.insta_link %}
-            <a href="{{ game.insta_link }}" target="_blank" class="btn btn-outline-danger w-100 py-3 fw-bold" style="border-color: #E1306C; color: #E1306C;">
+            <a href="{{ game.insta_link }}" target="_blank" class="btn btn-insta w-100 py-3 fw-bold">
                 <i class="bi bi-instagram me-2"></i> {{ game.insta_text|default:"Instagram" }}
             </a>
             {% endif %}
@@ -154,3 +154,16 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+    .btn-insta {
+        border-color: #E1306C;
+        color: #E1306C;
+        transition: all 0.3s ease;
+    }
+    .btn-insta:hover {
+        background-color: #E1306C;
+        color: #fff !important;
+        border-color: #E1306C;
+    }
+</style>
