@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Про нас - LogosGame</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark border-bottom border-secondary border-opacity-25 py-3 mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3 text-primary" href="index.html">Logos<span class="text-white">Game</span></a>
+            <div class="ms-auto">
+                <a href="index.html" class="nav-link d-inline-block me-3">Ігри</a>
+                <a href="about.html" class="nav-link d-inline-block active">Про нас</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="text-center mb-5 fw-bold">Про нас / Зв’язок з нами</h1>
+                <div class="card shadow-lg p-4 p-md-5 rounded-4">
+                    <p class="lead mb-4">LogosGame — це бібліотека християнських ігор та ресурсів для дітей, підлітків, молоді та дорослих.</p>
+                    
+                    <p class="mb-4">Це платформа, яка допомагає лідерам, наставникам, вчителям недільних шкіл та організаторам служіння швидко знаходити якісний контент для своїх зустрічей.</p>
+                    
+                    <p class="mb-4">Наша ціль — спростити підготовку до служіння та допомогти більше часу приділяти людям, а не пошуку матеріалів. Ми тільки починаємо розвивати LogosGame, тому будемо раді: молитвам, підтримці, порадам та ідеям.</p>
+                    
+                    <h3 class="mt-5 mb-4 fw-bold text-primary">Зв’язок з нами</h3>
+                    <p class="mb-4">Якщо у вас є запитання, пропозиції або ви хочете додати свою гру на сайт, пишіть нам на пошту або у соцмережі:</p>
+                    
+                    <ul class="list-unstyled mb-5">
+                        <li class="mb-3">
+                            <i class="bi bi-envelope text-primary me-2"></i>
+                            <strong>Email:</strong> <a href="mailto:rdwdanik@gmail.com" class="text-white text-decoration-none border-bottom border-primary">rdwdanik@gmail.com</a>
+                        </li>
+                    </ul>
+
+                    <h3 class="mb-4 fw-bold text-primary">Ми в соцмережах</h3>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="https://t.me/LogosGame" target="_blank" class="btn btn-outline-primary px-4 py-2 rounded-pill fw-bold">
+                            <i class="bi bi-telegram me-2"></i> Telegram
+                        </a>
+                        <a id="insta-link" href="https://www.instagram.com/logos.game/" target="_blank" class="btn btn-outline-primary px-4 py-2 rounded-pill fw-bold">
+                            <i class="bi bi-instagram me-2"></i> Instagram
+                        </a>
+                        <a href="https://www.youtube.com/channel/UC706zUeB_JWpYDMvd2g0fVA" target="_blank" class="btn btn-outline-danger px-4 py-2 rounded-pill fw-bold">
+                            <i class="bi bi-youtube me-2"></i> YouTube
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto py-5 border-top border-secondary border-opacity-25">
+        <div class="container text-center">
+            <p class="text-muted small mb-0">© 2026 LogosGame. Усі права захищені.</p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = DB_DATA.game_sitesettings?.[0];
+            if (settings?.instagram_link) {
+                document.getElementById('insta-link').href = settings.instagram_link;
+            }
+        });
+    </script>
+</body>
+</html>
