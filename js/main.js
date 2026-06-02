@@ -88,16 +88,18 @@ async function loadDatabase() {
     ];
 
     // Attach M2M data to games
-    DB_DATA['game_game'].forEach(game => {
-        m2m_tables.forEach(m2m => {
-            try {
-                const results = db.exec(`SELECT ${m2m.id_col} FROM ${m2m.table} WHERE game_id = ${game.id}`);
-                game[m2m.field] = results.length > 0 ? results[0].values.map(v => v[0]) : [];
-            } catch (err) {
-                game[m2m.field] = [];
-            }
+    if (DB_DATA['game_game']) {
+        DB_DATA['game_game'].forEach(game => {
+            m2m_tables.forEach(m2m => {
+                try {
+                    const results = db.exec(`SELECT ${m2m.id_col} FROM ${m2m.table} WHERE game_id = ${game.id}`);
+                    game[m2m.field] = results.length > 0 ? results[0].values.map(v => v[0]) : [];
+                } catch (err) {
+                    game[m2m.field] = [];
+                }
+            });
         });
-    });
+    }
 
     db.close();
     console.log("Database processing complete.");
@@ -205,7 +207,7 @@ document.getElementById('resetFilters')?.addEventListener('click', (e) => {
 });
 
 function applyCurrentFilters() {
-    let games = DB_DATA.game_game;
+    let games = DB_DATA.game_game || [];
 
     Object.keys(currentFilters).forEach(key => {
         const val = currentFilters[key];
@@ -293,6 +295,11 @@ function renderGameDetail(id) {
     const container = document.getElementById('gameDetail');
     if (!container) return;
 
+    if (!DB_DATA.game_game) {
+        container.innerHTML = `<div class="alert alert-danger">Дані ігор не завантажені</div>`;
+        return;
+    }
+
     const game = DB_DATA.game_game.find(g => g.id === id);
     if (!game) {
         container.innerHTML = "<h1>Гра не знайдена</h1>";
@@ -301,7 +308,7 @@ function renderGameDetail(id) {
 
     // Helper to get multiple names
     const getNames = (ids, table) => {
-        if (!ids || ids.length === 0) return null;
+        if (!ids || ids.length === 0 || !DB_DATA[table]) return null;
         return ids.map(id => DB_DATA[table].find(t => t.id === id)?.name).filter(n => n).join(', ');
     };
 
