@@ -1,20 +1,98 @@
-// Filter state
+// Global database data
+let DB_DATA = {};
 let currentFilters = {};
 
-// Initial Render
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Loads the SQLite database and populates DB_DATA
+ */
+async function loadDatabase() {
+    const sqlPromise = initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+    });
+    
+    // Convert Base64 string to Uint8Array
+    const binaryString = atob(SQLITE_DB_BASE64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    const SQL = await sqlPromise;
+    const db = new SQL.Database(bytes);
+
+    const tables = [
+        'game_game', 'game_category', 'game_playercountrange', 'game_agegroup',
+        'game_gameduration', 'game_preplevel', 'game_location', 'game_activitylevel',
+        'game_interactiontype', 'game_gamegoal', 'game_contenttype', 'game_thematic',
+        'game_sitesettings'
+    ];
+
+    // Helper to convert DB results to array of objects
+    const queryToObjects = (sql) => {
+        const res = db.exec(sql);
+        if (res.length === 0) return [];
+        const columns = res[0].columns;
+        return res[0].values.map(row => {
+            const obj = {};
+            columns.forEach((col, i) => obj[col] = row[i]);
+            return obj;
+        });
+    };
+
+    // Load simple tables
+    tables.forEach(table => {
+        DB_DATA[table] = queryToObjects(`SELECT * FROM ${table}`);
+    });
+
+    // Load ManyToMany relationships
+    const m2m_tables = [
+        { field: 'categories', table: 'game_game_categories', id_col: 'category_id' },
+        { field: 'players_ranges', table: 'game_game_players_ranges', id_col: 'playercountrange_id' },
+        { field: 'age_groups', table: 'game_game_age_groups', id_col: 'agegroup_id' },
+        { field: 'durations', table: 'game_game_durations', id_col: 'gameduration_id' },
+        { field: 'prep_levels', table: 'game_game_prep_levels', id_col: 'preplevel_id' },
+        { field: 'locations', table: 'game_game_locations', id_col: 'location_id' },
+        { field: 'activity_levels', table: 'game_game_activity_levels', id_col: 'activitylevel_id' },
+        { field: 'interaction_types', table: 'game_game_interaction_types', id_col: 'interactiontype_id' },
+        { field: 'goals', table: 'game_game_goals', id_col: 'gamegoal_id' },
+        { field: 'content_types', table: 'game_game_content_types', id_col: 'contenttype_id' },
+        { field: 'thematics', table: 'game_game_thematics', id_col: 'thematic_id' }
+    ];
+
+    // Attach M2M data to games
+    DB_DATA['game_game'].forEach(game => {
+        m2m_tables.forEach(m2m => {
+            const results = db.exec(`SELECT ${m2m.id_col} FROM ${m2m.table} WHERE game_id = ${game.id}`);
+            game[m2m.field] = results.length > 0 ? results[0].values.map(v => v[0]) : [];
+        });
+    });
+
+    db.close();
+    console.log("Database loaded successfully from SQLite file");
+}
+
+// Initial Render for index.html
+document.addEventListener('DOMContentLoaded', async () => {
     if (document.getElementById('filterContainer')) {
-        renderFilters();
-        applyCurrentFilters();
-        
-        // Mobile toggle logic
-        const toggleBtn = document.getElementById('mobileFilterToggle');
-        const sidebar = document.getElementById('filterSidebar');
-        if (toggleBtn && sidebar) {
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-                sidebar.classList.toggle('d-none');
-            });
+        try {
+            await loadDatabase();
+            renderFilters();
+            applyCurrentFilters();
+            
+            // Mobile toggle logic
+            const toggleBtn = document.getElementById('mobileFilterToggle');
+            const sidebar = document.getElementById('filterSidebar');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                    sidebar.classList.toggle('d-none');
+                });
+            }
+        } catch (error) {
+            console.error("Initialization error:", error);
+            const list = document.getElementById('gameList');
+            if (list) list.innerHTML = `<div class="col-12 alert alert-danger">Помилка завантаження бази даних: ${error.message}</div>`;
         }
     }
 });
@@ -132,16 +210,22 @@ function renderGameList(games) {
     }
 
     container.innerHTML = games.map(game => {
-        const goal = (game.goals && game.goals.length > 0) 
-            ? DB_DATA.game_gamegoal.find(g => g.id === game.goals[0])?.name 
-            : 'Гра';
+        // Отримуємо назви всіх цілей (goals)
+        const goals = (game.goals && game.goals.length > 0) 
+            ? game.goals.map(id => DB_DATA.game_gamegoal.find(g => g.id === id)?.name).filter(n => n)
+            : ['Гра'];
         
+        // Отримуємо назви всіх тематик (thematics)
+        const thematics = (game.thematics && game.thematics.length > 0)
+            ? game.thematics.map(id => DB_DATA.game_thematic.find(t => t.id === id)?.name).filter(n => n)
+            : [];
+
         const duration = (game.durations && game.durations.length > 0)
-            ? DB_DATA.game_gameduration.find(d => d.id === game.durations[0])?.name
+            ? game.durations.map(id => DB_DATA.game_gameduration.find(d => d.id === id)?.name).filter(n => n).join(', ')
             : '-';
             
         const players = (game.players_ranges && game.players_ranges.length > 0)
-            ? DB_DATA.game_playercountrange.find(p => p.id === game.players_ranges[0])?.name
+            ? game.players_ranges.map(id => DB_DATA.game_playercountrange.find(p => p.id === id)?.name).filter(n => n).join(', ')
             : '-';
 
         return `
@@ -149,7 +233,8 @@ function renderGameList(games) {
                 <div class="card game-card p-4 d-flex flex-column position-relative">
                     <a href="game.html?id=${game.id}" class="stretched-link"></a>
                     <div class="mb-2 d-flex flex-wrap gap-2">
-                        <span class="badge badge-primary rounded-pill px-3" style="font-size: 0.75rem;">${goal}</span>
+                        ${goals.map(goal => `<span class="badge badge-primary rounded-pill px-3" style="font-size: 0.75rem;">${goal}</span>`).join('')}
+                        ${thematics.map(t => `<span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3" style="font-size: 0.75rem;">${t}</span>`).join('')}
                     </div>
                     <h5 class="card-title text-white fw-bold mb-3" style="font-size: 1.1rem;">${game.title}</h5>
                     <p class="card-text text-white-50 small flex-grow-1 mb-4" style="line-height: 1.6;">

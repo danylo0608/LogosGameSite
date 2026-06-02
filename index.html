@@ -52,7 +52,12 @@
                     <h2 class="h3 fw-bold mb-0">Ігри <span id="gameCount" class="badge bg-primary bg-opacity-25 text-primary ms-2 fs-6 fw-normal px-3">0</span></h2>
                 </div>
                 <div class="row g-4" id="gameList">
-                    <!-- Games will be injected here -->
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Завантаження...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Завантаження бази даних...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,7 +69,8 @@
         </div>
     </footer>
 
-    <script src="js/data.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+    <script src="js/db_bin.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

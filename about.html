@@ -63,12 +63,19 @@
         </div>
     </footer>
 
-    <script src="js/data.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+    <script src="js/db_bin.js"></script>
+    <script src="js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const settings = DB_DATA.game_sitesettings?.[0];
-            if (settings?.instagram_link) {
-                document.getElementById('insta-link').href = settings.instagram_link;
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadDatabase();
+                const settings = DB_DATA.game_sitesettings?.[0];
+                if (settings?.instagram_link) {
+                    document.getElementById('insta-link').href = settings.instagram_link;
+                }
+            } catch (error) {
+                console.error("Error loading settings:", error);
             }
         });
     </script>
