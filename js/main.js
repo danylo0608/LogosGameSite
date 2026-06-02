@@ -343,6 +343,8 @@ function renderGameDetail(id) {
             <div class="mt-4 pt-4 border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
                 ${game.show_tg && game.tg_link ? `<a href="${game.tg_link}" target="_blank" class="btn btn-primary w-100 py-3 fw-bold"><i class="bi bi-telegram me-2"></i> ${game.tg_text || 'Перейти в чат гри'}</a>` : ''}
                 ${game.show_external && game.external_link ? `<a href="${game.external_link}" target="_blank" class="btn btn-outline-primary w-100 py-3 fw-bold"><i class="bi bi-globe me-2"></i> ${game.external_text || 'Грати онлайн'}</a>` : ''}
+                ${game.show_insta && game.insta_link ? `<a href="${game.insta_link}" target="_blank" class="btn btn-outline-primary w-100 py-3 fw-bold"><i class="bi bi-instagram me-2"></i> ${game.insta_text || 'Instagram'}</a>` : ''}
+                ${game.show_youtube && game.youtube_link ? `<a href="${game.youtube_link}" target="_blank" class="btn btn-outline-danger w-100 py-3 fw-bold"><i class="bi bi-youtube me-2"></i> ${game.youtube_text || 'YouTube'}</a>` : ''}
             </div>
         </div>
     `;
