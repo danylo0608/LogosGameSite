@@ -6,16 +6,38 @@ let currentFilters = {};
  * Loads the SQLite database and populates DB_DATA
  */
 async function loadDatabase() {
+    console.log("Starting database initialization...");
+    
     const sqlPromise = initSqlJs({
         locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
     });
-    
-    // Convert Base64 string to Uint8Array
-    const binaryString = atob(SQLITE_DB_BASE64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+
+    let bytes;
+    try {
+        // Method 1: Try fetching the file directly (works on GitHub Pages/Servers)
+        console.log("Attempting to fetch db.sqlite3 directly...");
+        const response = await fetch('db.sqlite3');
+        if (response.ok) {
+            const buffer = await response.arrayBuffer();
+            bytes = new Uint8Array(buffer);
+            console.log("Database loaded via fetch()");
+        } else {
+            throw new Error("Fetch response not OK");
+        }
+    } catch (e) {
+        console.warn("Fetch failed, falling back to Base64 embedded data:", e);
+        // Method 2: Fallback to embedded Base64 (works locally via file://)
+        if (typeof SQLITE_DB_BASE64 !== 'undefined') {
+            const binaryString = atob(SQLITE_DB_BASE64);
+            const len = binaryString.length;
+            bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            console.log("Database loaded via Base64 fallback");
+        } else {
+            throw new Error("Both fetch and Base64 fallback failed. Database data not found.");
+        }
     }
 
     const SQL = await sqlPromise;
@@ -30,14 +52,19 @@ async function loadDatabase() {
 
     // Helper to convert DB results to array of objects
     const queryToObjects = (sql) => {
-        const res = db.exec(sql);
-        if (res.length === 0) return [];
-        const columns = res[0].columns;
-        return res[0].values.map(row => {
-            const obj = {};
-            columns.forEach((col, i) => obj[col] = row[i]);
-            return obj;
-        });
+        try {
+            const res = db.exec(sql);
+            if (res.length === 0) return [];
+            const columns = res[0].columns;
+            return res[0].values.map(row => {
+                const obj = {};
+                columns.forEach((col, i) => obj[col] = row[i]);
+                return obj;
+            });
+        } catch (err) {
+            console.error(`Query failed: ${sql}`, err);
+            return [];
+        }
     };
 
     // Load simple tables
@@ -63,13 +90,17 @@ async function loadDatabase() {
     // Attach M2M data to games
     DB_DATA['game_game'].forEach(game => {
         m2m_tables.forEach(m2m => {
-            const results = db.exec(`SELECT ${m2m.id_col} FROM ${m2m.table} WHERE game_id = ${game.id}`);
-            game[m2m.field] = results.length > 0 ? results[0].values.map(v => v[0]) : [];
+            try {
+                const results = db.exec(`SELECT ${m2m.id_col} FROM ${m2m.table} WHERE game_id = ${game.id}`);
+                game[m2m.field] = results.length > 0 ? results[0].values.map(v => v[0]) : [];
+            } catch (err) {
+                game[m2m.field] = [];
+            }
         });
     });
 
     db.close();
-    console.log("Database loaded successfully from SQLite file");
+    console.log("Database processing complete.");
 }
 
 // Initial Render for index.html
