@@ -261,9 +261,24 @@ function renderGameList(games) {
             ? game.players_ranges.map(id => DB_DATA.game_playercountrange.find(p => p.id === id)?.name).filter(n => n).join(', ')
             : '-';
 
+        const buttonText = game.external_text || 'Грати онлайн';
+        let buttonClass = '';
+        let buttonStyle = '';
+        
+        if (buttonText === 'Грати онлайн') {
+            buttonClass = 'btn btn-success';
+        } else if (buttonText === 'Скачати') {
+            buttonClass = 'btn btn-primary';
+        } else if (buttonText === 'Замовити гру') {
+            buttonClass = 'btn';
+            buttonStyle = 'background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border: none; color: white;';
+        } else {
+            buttonClass = 'btn btn-success';
+        }
+
         return `
             <div class="col-lg-4 col-md-6">
-                <div class="card game-card p-4 d-flex flex-column position-relative">
+                <div class="card game-card p-4 d-flex flex-column h-100 position-relative">
                     <a href="game.html?id=${game.id}" class="stretched-link"></a>
                     <div class="mb-2 d-flex flex-wrap gap-2">
                         ${goals.map(goal => `<span class="badge badge-primary rounded-pill px-3" style="font-size: 0.75rem;">${goal}</span>`).join('')}
@@ -279,11 +294,18 @@ function renderGameList(games) {
                             <span class="text-muted small d-flex align-items-center gap-1"><i class="bi bi-people text-primary"></i> ${players}</span>
                         </div>
                         
-                        ${game.show_external && game.external_link ? `
-                        <a href="${game.external_link}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill fw-bold position-relative" style="z-index: 2;">
-                            <i class="bi bi-globe me-2"></i> ${game.external_text || 'Грати онлайн'}
-                        </a>
-                        ` : ''}
+                        <div class="d-flex flex-column gap-2">
+                            ${game.show_external && game.external_link ? `
+                            <a href="${game.external_link}" target="_blank" class="${buttonClass} w-100 py-2 rounded-pill fw-bold position-relative" style="z-index: 2; ${buttonStyle}">
+                                <i class="bi bi-globe me-2"></i> ${buttonText}
+                            </a>
+                            ` : ''}
+                            ${game.show_insta && game.insta_link ? `
+                            <a href="${game.insta_link}" target="_blank" class="btn w-100 py-2 rounded-pill fw-bold position-relative" style="z-index: 2; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border: none; color: white;">
+                                <i class="bi bi-instagram me-2"></i> ${game.insta_text || 'Instagram'}
+                            </a>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -343,7 +365,7 @@ function renderGameDetail(id) {
             <div class="mt-4 pt-4 border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
                 ${game.show_tg && game.tg_link ? `<a href="${game.tg_link}" target="_blank" class="btn btn-primary w-100 py-3 fw-bold"><i class="bi bi-telegram me-2"></i> ${game.tg_text || 'Перейти в чат гри'}</a>` : ''}
                 ${game.show_external && game.external_link ? `<a href="${game.external_link}" target="_blank" class="btn btn-outline-primary w-100 py-3 fw-bold"><i class="bi bi-globe me-2"></i> ${game.external_text || 'Грати онлайн'}</a>` : ''}
-                ${game.show_insta && game.insta_link ? `<a href="${game.insta_link}" target="_blank" class="btn btn-outline-primary w-100 py-3 fw-bold"><i class="bi bi-instagram me-2"></i> ${game.insta_text || 'Instagram'}</a>` : ''}
+                ${game.show_insta && game.insta_link ? `<a href="${game.insta_link}" target="_blank" class="btn w-100 py-3 fw-bold" style="background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border: none; color: white;"><i class="bi bi-instagram me-2"></i> ${game.insta_text || 'Instagram'}</a>` : ''}
                 ${game.show_youtube && game.youtube_link ? `<a href="${game.youtube_link}" target="_blank" class="btn btn-outline-danger w-100 py-3 fw-bold"><i class="bi bi-youtube me-2"></i> ${game.youtube_text || 'YouTube'}</a>` : ''}
             </div>
         </div>
@@ -384,7 +406,7 @@ function renderGameDetail(id) {
 
             <!-- Блок 2 (Desktop): Параметри справа -->
             <div class="col-lg-4 d-none d-lg-block">
-                <div class="sticky-lg-top" style="top: 20px;">
+                <div>
                     ${paramsHtml}
                 </div>
             </div>
